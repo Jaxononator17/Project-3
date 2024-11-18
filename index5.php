@@ -10,9 +10,9 @@ if (!is_logged_in()) {
 }
 
 $host = 'localhost'; 
-$dbname = 'books'; 
-$user = 'mark'; 
-$pass = 'mark';
+$dbname = 'paint_codes'; 
+$user = 'jax'; 
+$pass = 'jax';
 $charset = 'utf8mb4';
 
 $dsn = "mysql:host=$host;dbname=$dbname;charset=$charset";
@@ -28,11 +28,11 @@ try {
     throw new PDOException($e->getMessage(), (int)$e->getCode());
 }
 
-// Handle book search
+// Handle paint search
 $search_results = null;
 if (isset($_GET['search']) && !empty($_GET['search'])) {
     $search_term = '%' . $_GET['search'] . '%';
-    $search_sql = 'SELECT id, author, title, publisher FROM books WHERE title LIKE :search';
+    $search_sql = 'SELECT `Color Name`, `Color Number`, `Hex`, `RGB`, `ID` FROM paint_codes WHERE `Color Name` LIKE :search';
     $search_stmt = $pdo->prepare($search_sql);
     $search_stmt->execute(['search' => $search_term]);
     $search_results = $search_stmt->fetchAll();
@@ -40,27 +40,28 @@ if (isset($_GET['search']) && !empty($_GET['search'])) {
 
 // Handle form submissions
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    if (isset($_POST['author']) && isset($_POST['title']) && isset($_POST['publisher'])) {
+    if (isset($_POST['color_name']) && isset($_POST['color_number']) && isset($_POST['hex']) && isset($_POST['rgb'])) {
         // Insert new entry
-        $author = htmlspecialchars($_POST['author']);
-        $title = htmlspecialchars($_POST['title']);
-        $publisher = htmlspecialchars($_POST['publisher']);
+        $color_name = htmlspecialchars($_POST['color_name']);
+        $color_number = htmlspecialchars($_POST['color_number']);
+        $hex = htmlspecialchars($_POST['hex']);
+        $rgb = htmlspecialchars($_POST['rgb']);
         
-        $insert_sql = 'INSERT INTO books (author, title, publisher) VALUES (:author, :title, :publisher)';
+        $insert_sql = 'INSERT INTO paint_codes (`Color Name`, `Color Number`, `Hex`, `RGB`) VALUES (:color_name, :color_number, :hex, :rgb)';
         $stmt_insert = $pdo->prepare($insert_sql);
-        $stmt_insert->execute(['author' => $author, 'title' => $title, 'publisher' => $publisher]);
+        $stmt_insert->execute(['color_name' => $color_name, 'color_number' => $color_number, 'hex' => $hex, 'rgb' => $rgb]);
     } elseif (isset($_POST['delete_id'])) {
         // Delete an entry
         $delete_id = (int) $_POST['delete_id'];
         
-        $delete_sql = 'DELETE FROM books WHERE id = :id';
+        $delete_sql = 'DELETE FROM paint_codes WHERE ID = :id';
         $stmt_delete = $pdo->prepare($delete_sql);
         $stmt_delete->execute(['id' => $delete_id]);
     }
 }
 
-// Get all books for main table
-$sql = 'SELECT id, author, title, publisher FROM books';
+// Get all paint codes for main table
+$sql = 'SELECT `ID`, `Color Name`, `Color Number`, `Hex`, `RGB` FROM valspar';
 $stmt = $pdo->query($sql);
 ?>
 
@@ -68,20 +69,20 @@ $stmt = $pdo->query($sql);
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Betty's Book Banning and Bridge Building</title>
+    <title>Paint Code Lookup</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <!-- Hero Section -->
     <div class="hero-section">
-        <h1 class="hero-title">Betty's Book Banning and Bridge Building</h1>
-        <p class="hero-subtitle">"Because nothing brings a community together like collectively deciding what others shouldn't read!"</p>
+        <h1 class="hero-title">Paint Code Lookup</h1>
+        <p class="hero-subtitle">"Look up a paint that fits your needs"</p>
         
         <!-- Search moved to hero section -->
         <div class="hero-search">
-            <h2>Search for a Book to Ban</h2>
+            <h2>Search for a paint to add to your list</h2>
             <form action="" method="GET" class="search-form">
-                <label for="search">Search by Title:</label>
+                <label for="search">Search by Color Name:</label>
                 <input type="text" id="search" name="search" required>
                 <input type="submit" value="Search">
             </form>
@@ -93,24 +94,24 @@ $stmt = $pdo->query($sql);
                         <table>
                             <thead>
                                 <tr>
-                                    <th>ID</th>
-                                    <th>Author</th>
-                                    <th>Title</th>
-                                    <th>Publisher</th>
+                                    <th>Color Name</th>
+                                    <th>Color Number</th>
+                                    <th>Hex</th>
+                                    <th>RGB</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <?php foreach ($search_results as $row): ?>
                                 <tr>
-                                    <td><?php echo htmlspecialchars($row['id']); ?></td>
-                                    <td><?php echo htmlspecialchars($row['author']); ?></td>
-                                    <td><?php echo htmlspecialchars($row['title']); ?></td>
-                                    <td><?php echo htmlspecialchars($row['publisher']); ?></td>
+                                    <td><?php echo htmlspecialchars($row['Color Name']); ?></td>
+                                    <td><?php echo htmlspecialchars($row['Color Number']); ?></td>
+                                    <td><?php echo htmlspecialchars($row['Hex']); ?></td>
+                                    <td><?php echo htmlspecialchars($row['RGB']); ?></td>
                                     <td>
                                         <form action="index5.php" method="post" style="display:inline;">
-                                            <input type="hidden" name="delete_id" value="<?php echo $row['id']; ?>">
-                                            <input type="submit" value="Ban!">
+                                            <input type="hidden" name="delete_id" value="<?php echo $row['ID']; ?>">
+                                            <input type="submit" value="Delete">
                                         </form>
                                     </td>
                                 </tr>
@@ -118,7 +119,7 @@ $stmt = $pdo->query($sql);
                             </tbody>
                         </table>
                     <?php else: ?>
-                        <p>No books found matching your search.</p>
+                        <p>No paint codes found matching your search.</p>
                     <?php endif; ?>
                 </div>
             <?php endif; ?>
@@ -127,28 +128,30 @@ $stmt = $pdo->query($sql);
 
     <!-- Table section with container -->
     <div class="table-container">
-        <h2>All Books in Database</h2>
+        <h2>All Paint Codes in Database</h2>
         <table class="half-width-left-align">
             <thead>
                 <tr>
                     <th>ID</th>
-                    <th>Author</th>
-                    <th>Title</th>
-                    <th>Publisher</th>
+                    <th>Color Name</th>
+                    <th>Color Number</th>
+                    <th>Hex</th>
+                    <th>RGB</th>
                     <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
                 <?php while ($row = $stmt->fetch()): ?>
                 <tr>
-                    <td><?php echo htmlspecialchars($row['id']); ?></td>
-                    <td><?php echo htmlspecialchars($row['author']); ?></td>
-                    <td><?php echo htmlspecialchars($row['title']); ?></td>
-                    <td><?php echo htmlspecialchars($row['publisher']); ?></td>
+                    <td><?php echo htmlspecialchars($row['ID']); ?></td>
+                    <td><?php echo htmlspecialchars($row['Color Name']); ?></td>
+                    <td><?php echo htmlspecialchars($row['Color Number']); ?></td>
+                    <td><?php echo htmlspecialchars($row['Hex']); ?></td>
+                    <td><?php echo htmlspecialchars($row['RGB']); ?></td>
                     <td>
                         <form action="index5.php" method="post" style="display:inline;">
-                            <input type="hidden" name="delete_id" value="<?php echo $row['id']; ?>">
-                            <input type="submit" value="Ban!">
+                            <input type="hidden" name="delete_id" value="<?php echo $row['ID']; ?>">
+                            <input type="submit" value="Delete">
                         </form>
                     </td>
                 </tr>
@@ -159,18 +162,21 @@ $stmt = $pdo->query($sql);
 
     <!-- Form section with container -->
     <div class="form-container">
-        <h2>Condemn a Book Today</h2>
+        <h2>Add a New Paint Code</h2>
         <form action="index5.php" method="post">
-            <label for="author">Author:</label>
-            <input type="text" id="author" name="author" required>
+            <label for="color_name">Color Name:</label>
+            <input type="text" id="color_name" name="color_name" required>
             <br><br>
-            <label for="title">Title:</label>
-            <input type="text" id="title" name="title" required>
+            <label for="color_number">Color Number:</label>
+            <input type="text" id="color_number" name="color_number" required>
             <br><br>
-            <label for="publisher">Publisher:</label>
-            <input type="text" id="publisher" name="publisher" required>
+            <label for="hex">Hex:</label>
+            <input type="text" id="hex" name="hex" required>
             <br><br>
-            <input type="submit" value="Condemn Book">
+            <label for="rgb">RGB:</label>
+            <input type="text" id="rgb" name="rgb" required>
+            <br><br>
+            <input type="submit" value="Add Paint Code">
         </form>
     </div>
 </body>
