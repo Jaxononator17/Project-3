@@ -1,7 +1,7 @@
 <?php
 // config.php - Database configuration
 $host = 'localhost'; 
-$dbname = 'books'; 
+$dbname = 'paint_codes'; 
 $user = 'jax'; 
 $pass = 'jax';
 $charset = 'utf8mb4';
@@ -18,6 +18,3 @@ try {
 } catch (PDOException $e) {
     throw new PDOException($e->getMessage(), (int)$e->getCode());
 }
-
-
-$pdo->exec($sql);

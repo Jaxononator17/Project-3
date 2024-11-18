@@ -32,7 +32,7 @@ try {
 $search_results = null;
 if (isset($_GET['search']) && !empty($_GET['search'])) {
     $search_term = '%' . $_GET['search'] . '%';
-    $search_sql = 'SELECT `Color Name`, `Color Number`, `Hex`, `RGB`, `ID` FROM paint_codes WHERE `Color Name` LIKE :search';
+    $search_sql = 'SELECT `Color Name`, `Color Number`, `Hex`, `RGB`, `ID` FROM valspar WHERE `Color Number` LIKE :search';
     $search_stmt = $pdo->prepare($search_sql);
     $search_stmt->execute(['search' => $search_term]);
     $search_results = $search_stmt->fetchAll();
@@ -47,14 +47,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $hex = htmlspecialchars($_POST['hex']);
         $rgb = htmlspecialchars($_POST['rgb']);
         
-        $insert_sql = 'INSERT INTO paint_codes (`Color Name`, `Color Number`, `Hex`, `RGB`) VALUES (:color_name, :color_number, :hex, :rgb)';
+        $insert_sql = 'INSERT INTO valspar (`Color Name`, `Color Number`, `Hex`, `RGB`) VALUES (:color_name, :color_number, :hex, :rgb)';
         $stmt_insert = $pdo->prepare($insert_sql);
         $stmt_insert->execute(['color_name' => $color_name, 'color_number' => $color_number, 'hex' => $hex, 'rgb' => $rgb]);
     } elseif (isset($_POST['delete_id'])) {
         // Delete an entry
         $delete_id = (int) $_POST['delete_id'];
         
-        $delete_sql = 'DELETE FROM paint_codes WHERE ID = :id';
+        $delete_sql = 'DELETE FROM valspar WHERE ID = :id';
         $stmt_delete = $pdo->prepare($delete_sql);
         $stmt_delete->execute(['id' => $delete_id]);
     }
@@ -82,7 +82,7 @@ $stmt = $pdo->query($sql);
         <div class="hero-search">
             <h2>Search for a paint to add to your list</h2>
             <form action="" method="GET" class="search-form">
-                <label for="search">Search by Color Name:</label>
+                <label for="search">Search by Paint Code:</label>
                 <input type="text" id="search" name="search" required>
                 <input type="submit" value="Search">
             </form>

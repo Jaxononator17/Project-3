@@ -1,6 +1,6 @@
 body {
     font-family: Arial, sans-serif;
-    background-color: red;
+    background-color: black;
     color: green;
     max-width: 1200px;
     margin: 0 auto;
@@ -68,7 +68,7 @@ h1, h2 {
 .search-container {
     margin-bottom: 40px;
     padding: 20px;
-    background-color: #fff;
+    background-color: black;
     border-radius: 4px;
     box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
@@ -102,7 +102,7 @@ h1, h2 {
 }
 
 .hero-section {
-    background-color: #fff;
+    background-color: black;
     padding: 40px 20px;
     margin: -20px -20px 40px -20px; /* Negative margin to stretch full width */
     text-align: center;
@@ -111,13 +111,13 @@ h1, h2 {
 
 .hero-title {
     font-size: 2.5em;
-    color: #333;
+    color: green;
     margin-bottom: 15px;
 }
 
 .hero-subtitle {
     font-size: 1.2em;
-    color: #666;
+    color: green;
     margin-bottom: 30px;
     font-style: italic;
 }
@@ -126,7 +126,7 @@ h1, h2 {
     max-width: 600px;
     margin: 0 auto;
     padding: 20px;
-    background-color: #f9f9f9;
+    background-color: black;
     border-radius: 4px;
     box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
