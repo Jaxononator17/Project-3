@@ -40,29 +40,23 @@ if (isset($_GET['search']) && !empty($_GET['search'])) {
 
 // Handle form submissions
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    if (isset($_POST['color_name']) && isset($_POST['color_number']) && isset($_POST['hex']) && isset($_POST['rgb'])) {
-        // Insert new entry
-        $color_name = htmlspecialchars($_POST['color_name']);
-        $color_number = htmlspecialchars($_POST['color_number']);
-        $hex = htmlspecialchars($_POST['hex']);
-        $rgb = htmlspecialchars($_POST['rgb']);
+    if (isset($_POST['save_id'])) {
+        // Save an entry
+        $save_id = (int) $_POST['save_id'];
         
-        $insert_sql = 'INSERT INTO valspar (`Color Name`, `Color Number`, `Hex`, `RGB`) VALUES (:color_name, :color_number, :hex, :rgb)';
-        $stmt_insert = $pdo->prepare($insert_sql);
-        $stmt_insert->execute(['color_name' => $color_name, 'color_number' => $color_number, 'hex' => $hex, 'rgb' => $rgb]);
-    } elseif (isset($_POST['delete_id'])) {
-        // Delete an entry
-        $delete_id = (int) $_POST['delete_id'];
-        
-        $delete_sql = 'DELETE FROM valspar WHERE ID = :id';
-        $stmt_delete = $pdo->prepare($delete_sql);
-        $stmt_delete->execute(['id' => $delete_id]);
+        $save_sql = 'INSERT INTO saved_paint_codes (ID, `Color Name`, `Color Number`, `Hex`, `RGB`)
+                     SELECT ID, `Color Name`, `Color Number`, `Hex`, `RGB` FROM valspar WHERE ID = :id';
+        $stmt_save = $pdo->prepare($save_sql);
+        $stmt_save->execute(['id' => $save_id]);
     }
 }
 
 // Get all paint codes for main table
 $sql = 'SELECT `ID`, `Color Name`, `Color Number`, `Hex`, `RGB` FROM valspar';
 $stmt = $pdo->query($sql);
+
+$saved_sql = 'SELECT `ID`, `Color Name`, `Color Number`, `Hex`, `RGB` FROM saved_paint_codes';
+$saved_stmt = $pdo->query($saved_sql);
 ?>
 
 <!DOCTYPE html>
@@ -110,8 +104,8 @@ $stmt = $pdo->query($sql);
                                     <td><?php echo htmlspecialchars($row['RGB']); ?></td>
                                     <td>
                                         <form action="index5.php" method="post" style="display:inline;">
-                                            <input type="hidden" name="delete_id" value="<?php echo $row['ID']; ?>">
-                                            <input type="submit" value="Delete">
+                                            <input type="hidden" name="save_id" value="<?php echo $row['ID']; ?>">
+                                            <input type="submit" value="Save">
                                         </form>
                                     </td>
                                 </tr>
@@ -150,8 +144,8 @@ $stmt = $pdo->query($sql);
                     <td><?php echo htmlspecialchars($row['RGB']); ?></td>
                     <td>
                         <form action="index5.php" method="post" style="display:inline;">
-                            <input type="hidden" name="delete_id" value="<?php echo $row['ID']; ?>">
-                            <input type="submit" value="Delete">
+                            <input type="hidden" name="save_id" value="<?php echo $row['ID']; ?>">
+                            <input type="submit" value="Save">
                         </form>
                     </td>
                 </tr>
@@ -160,24 +154,32 @@ $stmt = $pdo->query($sql);
         </table>
     </div>
 
-    <!-- Form section with container -->
-    <div class="form-container">
-        <h2>Add a New Paint Code</h2>
-        <form action="index5.php" method="post">
-            <label for="color_name">Color Name:</label>
-            <input type="text" id="color_name" name="color_name" required>
-            <br><br>
-            <label for="color_number">Color Number:</label>
-            <input type="text" id="color_number" name="color_number" required>
-            <br><br>
-            <label for="hex">Hex:</label>
-            <input type="text" id="hex" name="hex" required>
-            <br><br>
-            <label for="rgb">RGB:</label>
-            <input type="text" id="rgb" name="rgb" required>
-            <br><br>
-            <input type="submit" value="Add Paint Code">
-        </form>
+    <!-- Saved Paint Codes section with container -->
+    <div class="table-container">
+        <h2>Saved Paint Codes</h2>
+        <table class="half-width-left-align">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Color Name</th>
+                    <th>Color Number</th>
+                    <th>Hex</th>
+                    <th>RGB</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php while ($row = $saved_stmt->fetch()): ?>
+                <tr>
+                    <td><?php echo htmlspecialchars($row['ID']); ?></td>
+                    <td><?php echo htmlspecialchars($row['Color Name']); ?></td>
+                    <td><?php echo htmlspecialchars($row['Color Number']); ?></td>
+                    <td><?php echo htmlspecialchars($row['Hex']); ?></td>
+                    <td><?php echo htmlspecialchars($row['RGB']); ?></td>
+                </tr>
+                <?php endwhile; ?>
+            </tbody>
+        </table>
     </div>
 </body>
 </html>
+
